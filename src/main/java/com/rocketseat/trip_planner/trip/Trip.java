@@ -42,7 +42,7 @@ public class Trip {
 
     public Trip(TripRequestPayload data) {
         this.destination = data.destination();
-        this.isConfirmed = true;
+        this.isConfirmed = false;
         this.ownerEmail = data.owner_email();
         this.ownerName = data.owner_name();
         this.startsAt = LocalDateTime.parse(data.starts_at(), DateTimeFormatter.ISO_DATE_TIME);
