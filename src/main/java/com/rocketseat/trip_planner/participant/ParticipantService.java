@@ -31,4 +31,7 @@ public class ParticipantService {
 
     public void triggerConfirmationEmailToParticipant(String email) {}
 
+    public List<ParticipantData> getAllParticipantsFromEvent(UUID id){
+        return this.participantRepository.findByTripId(id).stream().map(participant -> new ParticipantData(participant.getId(), participant.getName(), participant.getEmail(), participant.getIsConfirmed())).toList();
+    }
 }
