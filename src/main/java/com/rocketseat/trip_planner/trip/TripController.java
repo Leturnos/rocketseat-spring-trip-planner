@@ -4,10 +4,7 @@ import com.rocketseat.trip_planner.activity.ActivityData;
 import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
 import com.rocketseat.trip_planner.activity.ActivityResponse;
 import com.rocketseat.trip_planner.activity.ActivityService;
-import com.rocketseat.trip_planner.link.LinkRepository;
-import com.rocketseat.trip_planner.link.LinkRequestPayload;
-import com.rocketseat.trip_planner.link.LinkResponse;
-import com.rocketseat.trip_planner.link.LinkService;
+import com.rocketseat.trip_planner.link.*;
 import com.rocketseat.trip_planner.participant.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -147,5 +144,12 @@ public class TripController {
             return ResponseEntity.ok(linkResponse);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/{id}/links")
+    public ResponseEntity<List<LinkData>> getAllLinks(@PathVariable UUID id ) {
+        List<LinkData> linkData = this.linkService.getAllLinksFromTrip(id);
+
+        return ResponseEntity.ok(linkData);
     }
 }
