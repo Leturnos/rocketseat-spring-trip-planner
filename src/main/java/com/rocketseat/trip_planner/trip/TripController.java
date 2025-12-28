@@ -1,5 +1,8 @@
 package com.rocketseat.trip_planner.trip;
 
+import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
+import com.rocketseat.trip_planner.activity.ActivityResponse;
+import com.rocketseat.trip_planner.activity.ActivityService;
 import com.rocketseat.trip_planner.participant.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,9 @@ public class TripController {
 
     @Autowired
     private ParticipantService participantService;
+
+    @Autowired
+    private ActivityService activityService;
 
     @Autowired
     private TripRepository tripRepository;
@@ -85,6 +91,20 @@ public class TripController {
             if (rawTrip.getIsConfirmed()) this.participantService.triggerConfirmationEmailToParticipant(payload.email());
 
             return ResponseEntity.ok(participantCreateReponse);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{id}/activities")
+    public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
+        Optional<Trip> trip  = this.tripRepository.findById(id);
+
+        if (trip.isPresent()) {
+            Trip rawTrip = trip.get();
+
+            ActivityResponse activityResponse = this.activityService.saveActivity(payload, rawTrip);
+
+            return ResponseEntity.ok(activityResponse);
         }
         return ResponseEntity.notFound().build();
     }
