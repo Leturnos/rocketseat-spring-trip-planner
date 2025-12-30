@@ -5,6 +5,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 public class TripService {
 
@@ -24,5 +27,9 @@ public class TripService {
         participantService.registerParticipantsToEvent(payload.emails_to_invite(), newTrip);
 
         return newTrip;
+    }
+
+    public Optional<Trip> getTripDetails(UUID id) {
+        return this.tripRepository.findById(id);
     }
 }
