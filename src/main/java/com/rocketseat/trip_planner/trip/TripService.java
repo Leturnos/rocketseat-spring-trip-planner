@@ -3,6 +3,7 @@ package com.rocketseat.trip_planner.trip;
 import com.rocketseat.trip_planner.participant.ParticipantService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -47,6 +48,20 @@ public class TripService {
             rawTrip.setDestination(payload.destination());
 
             this.tripRepository.save(rawTrip);
+        }
+        return trip;
+    }
+
+    public Optional<Trip> confirmTripAndSendEmailToParticipants(UUID id) {
+        Optional<Trip> trip  = this.tripRepository.findById(id);
+
+        if (trip.isPresent()) {
+            Trip rawTrip = trip.get();
+            rawTrip.setIsConfirmed(true);
+
+            this.tripRepository.save(rawTrip);
+            this.participantService.triggerConfirmationEmailToParticipants(id);
+
         }
         return trip;
     }
