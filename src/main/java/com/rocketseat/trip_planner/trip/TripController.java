@@ -30,16 +30,16 @@ public class TripController {
     private TripRepository tripRepository;
 
     @Autowired
+    private TripService tripService;
+
+    @Autowired
     private LinkService linkService;
 
     // start Trip
     @PostMapping
     public ResponseEntity<TripCreateResponse> createTrip(@RequestBody TripRequestPayload payload){
-        Trip newTrip = new Trip(payload);
 
-        this.tripRepository.save(newTrip);
-
-        this.participantService.registerParticipantsToEvent(payload.emails_to_invite(), newTrip);
+        Trip newTrip = tripService.registerTrip(payload);
 
         return ResponseEntity.ok(new TripCreateResponse(newTrip.getId()));
     }
