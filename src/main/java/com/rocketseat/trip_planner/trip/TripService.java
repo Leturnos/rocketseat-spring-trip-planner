@@ -1,9 +1,11 @@
 package com.rocketseat.trip_planner.trip;
 
+import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
+import com.rocketseat.trip_planner.activity.ActivityResponse;
+import com.rocketseat.trip_planner.activity.ActivityService;
 import com.rocketseat.trip_planner.participant.ParticipantService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +21,9 @@ public class TripService {
 
     @Autowired
     private ParticipantService participantService;
+
+    @Autowired
+    private ActivityService activityService;
 
     @Transactional
     public Trip registerTrip(TripRequestPayload payload) {
@@ -64,5 +69,14 @@ public class TripService {
 
         }
         return trip;
+    }
+
+    public Optional<ActivityResponse> registerActivityWithRequestBody(UUID id, ActivityRequestPayload payload) {
+        return this.tripRepository.findById(id)
+                .map(trip -> {
+                    // to-do: validateDate(payload.occurs_at());
+
+                    return this.activityService.saveActivity(payload, trip);
+                });
     }
 }

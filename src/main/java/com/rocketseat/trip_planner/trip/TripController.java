@@ -7,6 +7,7 @@ import com.rocketseat.trip_planner.activity.ActivityService;
 import com.rocketseat.trip_planner.link.*;
 import com.rocketseat.trip_planner.participant.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,7 +56,8 @@ public class TripController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
         // to-do: handle data errors
-}
+    }
+
 
 @PostMapping("/{id}/confirm")
 public ResponseEntity<Trip> confirmTrip(@PathVariable UUID id) {
@@ -66,17 +68,9 @@ public ResponseEntity<Trip> confirmTrip(@PathVariable UUID id) {
 
 // end Trip and start activity
 @PostMapping("/{id}/activities")
-public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
-    Optional<Trip> trip  = this.tripRepository.findById(id);
-
-    if (trip.isPresent()) {
-        Trip rawTrip = trip.get();
-
-        ActivityResponse activityResponse = this.activityService.saveActivity(payload, rawTrip);
-
-        return ResponseEntity.ok(activityResponse);
-    }
-    return ResponseEntity.notFound().build();
+public ResponseEntity<Optional<ActivityResponse>> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
+    Optional<ActivityResponse> activityResponse = tripService.registerActivityWithRequestBody(id, payload);
+    return ResponseEntity.status(HttpStatus.CREATED).body(activityResponse);
 }
 
 @GetMapping("/{id}/activities")
