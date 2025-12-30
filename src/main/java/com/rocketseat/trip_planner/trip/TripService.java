@@ -3,9 +3,12 @@ package com.rocketseat.trip_planner.trip;
 import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
 import com.rocketseat.trip_planner.activity.ActivityResponse;
 import com.rocketseat.trip_planner.activity.ActivityService;
+import com.rocketseat.trip_planner.participant.ParticipantCreateResponse;
+import com.rocketseat.trip_planner.participant.ParticipantRequestPayload;
 import com.rocketseat.trip_planner.participant.ParticipantService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -57,6 +60,7 @@ public class TripService {
         return trip;
     }
 
+    @Transactional
     public Optional<Trip> confirmTripAndSendEmailToParticipants(UUID id) {
         Optional<Trip> trip  = this.tripRepository.findById(id);
 
@@ -78,5 +82,19 @@ public class TripService {
 
                     return this.activityService.saveActivity(payload, trip);
                 });
+    }
+
+    @Transactional
+    public ParticipantCreateResponse inviteParticipantByEmail(UUID id, ParticipantRequestPayload payload) {
+        Trip trip = this.tripRepository.findById(id).orElseThrow();
+        // to-do: Treat error if there is no trip with the id
+
+        ParticipantCreateResponse participantCreateResponse = this.participantService.registerParticipantToEvent(payload.email(), trip);
+
+        if (trip.getIsConfirmed()) {
+            this.participantService.triggerConfirmationEmailToParticipant(payload.email());
+        }
+
+        return participantCreateResponse;
     }
 }

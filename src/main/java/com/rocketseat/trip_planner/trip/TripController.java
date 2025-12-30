@@ -90,21 +90,11 @@ public ResponseEntity<List<ParticipantData>> getAllParticipants(@PathVariable UU
 
 @PostMapping("/{id}/invite")
 public ResponseEntity<ParticipantCreateResponse> inviteParticipant(@PathVariable UUID id, @RequestBody ParticipantRequestPayload payload){
-    Optional<Trip> trip  = this.tripRepository.findById(id);
-
-    if (trip.isPresent()) {
-        Trip rawTrip = trip.get();
-
-        ParticipantCreateResponse participantCreateReponse = this.participantService.registerParticipantToEvent(payload.email(), rawTrip);
-
-        if (rawTrip.getIsConfirmed()) this.participantService.triggerConfirmationEmailToParticipant(payload.email());
-
-        return ResponseEntity.ok(participantCreateReponse);
-    }
-    return ResponseEntity.notFound().build();
+    ParticipantCreateResponse response = tripService.inviteParticipantByEmail(id, payload);
+    return ResponseEntity.ok(response);
 }
 
-// end Participant and start Link
+    // end Participant and start Link
 @PostMapping("/{id}/links")
 public ResponseEntity<LinkResponse> registerLink(@PathVariable UUID id, @RequestBody LinkRequestPayload payload){
     Optional<Trip> trip  = this.tripRepository.findById(id);
