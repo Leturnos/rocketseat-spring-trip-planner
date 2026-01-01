@@ -26,9 +26,6 @@ public class TripController {
     private ActivityService activityService;
 
     @Autowired
-    private TripRepository tripRepository;
-
-    @Autowired
     private TripService tripService;
 
     @Autowired
@@ -68,9 +65,10 @@ public class TripController {
 
     // end Trip and start activity
     @PostMapping("/{id}/activities")
-    public ResponseEntity<Optional<ActivityResponse>> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
-        Optional<ActivityResponse> activityResponse = tripService.registerActivityWithRequestBody(id, payload);
-        return ResponseEntity.status(HttpStatus.CREATED).body(activityResponse);
+    public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
+        return tripService.registerActivityWithRequestBody(id, payload)
+                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/activities")
