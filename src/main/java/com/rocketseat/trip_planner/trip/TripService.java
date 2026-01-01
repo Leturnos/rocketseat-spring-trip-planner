@@ -3,6 +3,7 @@ package com.rocketseat.trip_planner.trip;
 import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
 import com.rocketseat.trip_planner.activity.ActivityResponse;
 import com.rocketseat.trip_planner.activity.ActivityService;
+import com.rocketseat.trip_planner.exception.InvalidDateException;
 import com.rocketseat.trip_planner.link.Link;
 import com.rocketseat.trip_planner.link.LinkRequestPayload;
 import com.rocketseat.trip_planner.link.LinkResponse;
@@ -37,9 +38,10 @@ public class TripService {
 
     @Transactional
     public Trip registerTrip(TripRequestPayload payload) {
-        // to-do: validateDates(payload.starts_at(), payload.ends_at());
-
         Trip newTrip = new Trip(payload);
+
+        validateDates(newTrip.getStartsAt(), newTrip.getEndsAt());
+
         this.tripRepository.save(newTrip);
 
         participantService.registerParticipantsToEvent(payload.emails_to_invite(), newTrip);
@@ -52,14 +54,20 @@ public class TripService {
     }
 
     public Optional<Trip> updateTrip(UUID id, TripRequestPayload payload) {
-        Optional<Trip> trip  = this.tripRepository.findById(id);
-
-        // to-do: validateDates(payload.starts_at(), payload.ends_at());
+        Optional<Trip> trip = this.tripRepository.findById(id);
 
         if (trip.isPresent()) {
             Trip rawTrip = trip.get();
-            rawTrip.setEndsAt(LocalDateTime.parse(payload.ends_at(), DateTimeFormatter.ISO_DATE_TIME));
-            rawTrip.setStartsAt(LocalDateTime.parse(payload.starts_at(), DateTimeFormatter.ISO_DATE_TIME));
+
+            LocalDateTime startsAt = LocalDateTime.parse(payload.starts_at(), DateTimeFormatter.ISO_DATE_TIME);
+            LocalDateTime endsAt = LocalDateTime.parse(payload.ends_at(), DateTimeFormatter.ISO_DATE_TIME);
+
+            if (endsAt.isBefore(startsAt)) {
+                throw new InvalidDateException("A data de término não pode ser anterior à data de início.");
+            }
+
+            rawTrip.setStartsAt(startsAt);
+            rawTrip.setEndsAt(endsAt);
             rawTrip.setDestination(payload.destination());
 
             this.tripRepository.save(rawTrip);
@@ -84,11 +92,7 @@ public class TripService {
 
     public Optional<ActivityResponse> registerActivityWithRequestBody(UUID id, ActivityRequestPayload payload) {
         return this.tripRepository.findById(id)
-                .map(trip -> {
-                    // to-do: validateDate(payload.occurs_at());
-
-                    return this.activityService.saveActivity(payload, trip);
-                });
+                .map(trip -> this.activityService.saveActivity(payload, trip));
     }
 
     @Transactional
@@ -113,5 +117,15 @@ public class TripService {
 
         return linkResponse;
 
+    }
+
+    // methods
+    private void validateDates(LocalDateTime start, LocalDateTime end) {
+        if (start.isBefore(LocalDateTime.now())) {
+            throw new InvalidDateException("A data de início não pode ser no passado.");
+        }
+        if (end.isBefore(start)) {
+            throw new InvalidDateException("A data de término não pode ser anterior à data de início.");
+        }
     }
 }
