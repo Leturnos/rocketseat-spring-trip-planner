@@ -3,6 +3,10 @@ package com.rocketseat.trip_planner.trip;
 import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
 import com.rocketseat.trip_planner.activity.ActivityResponse;
 import com.rocketseat.trip_planner.activity.ActivityService;
+import com.rocketseat.trip_planner.link.Link;
+import com.rocketseat.trip_planner.link.LinkRequestPayload;
+import com.rocketseat.trip_planner.link.LinkResponse;
+import com.rocketseat.trip_planner.link.LinkService;
 import com.rocketseat.trip_planner.participant.ParticipantCreateResponse;
 import com.rocketseat.trip_planner.participant.ParticipantRequestPayload;
 import com.rocketseat.trip_planner.participant.ParticipantService;
@@ -27,6 +31,9 @@ public class TripService {
 
     @Autowired
     private ActivityService activityService;
+
+    @Autowired
+    private LinkService linkService;
 
     @Transactional
     public Trip registerTrip(TripRequestPayload payload) {
@@ -96,5 +103,15 @@ public class TripService {
         }
 
         return participantCreateResponse;
+    }
+
+    public LinkResponse registerLink(UUID id, LinkRequestPayload payload) {
+        Trip trip = this.tripRepository.findById(id).orElseThrow();
+        // to-do: Treat error if there is no trip with the id
+
+        LinkResponse linkResponse = this.linkService.saveLink(payload, trip);
+
+        return linkResponse;
+
     }
 }
