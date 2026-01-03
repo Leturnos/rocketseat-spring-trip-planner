@@ -2,6 +2,7 @@ package com.rocketseat.trip_planner.exception.handler;
 
 import com.rocketseat.trip_planner.exception.ExceptionResponse;
 import com.rocketseat.trip_planner.exception.InvalidDateException;
+import com.rocketseat.trip_planner.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,7 +14,7 @@ import java.util.Date;
 @RestControllerAdvice
 public class CustomGlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<ExceptionResponse> handlerAllException(Exception ex, WebRequest request){
+    public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request){
         ExceptionResponse response = new ExceptionResponse(
                 new Date(),
                 ex.getMessage(),
@@ -28,5 +29,14 @@ public class CustomGlobalExceptionHandler {
                 ex.getMessage(),
                 request.getDescription(false));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public final ResponseEntity<ExceptionResponse> handleNotFoundException(Exception ex, WebRequest request) {
+        ExceptionResponse response = new ExceptionResponse(
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }
