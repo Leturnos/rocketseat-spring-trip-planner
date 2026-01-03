@@ -1,10 +1,8 @@
 package com.rocketseat.trip_planner.trip;
 
-import com.rocketseat.trip_planner.activity.ActivityData;
-import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
-import com.rocketseat.trip_planner.activity.ActivityResponse;
-import com.rocketseat.trip_planner.activity.ActivityService;
+import com.rocketseat.trip_planner.activity.*;
 import com.rocketseat.trip_planner.exception.InvalidDateException;
+import com.rocketseat.trip_planner.exception.ResourceNotFoundException;
 import com.rocketseat.trip_planner.link.*;
 import com.rocketseat.trip_planner.participant.ParticipantCreateResponse;
 import com.rocketseat.trip_planner.participant.ParticipantData;
@@ -12,15 +10,11 @@ import com.rocketseat.trip_planner.participant.ParticipantRequestPayload;
 import com.rocketseat.trip_planner.participant.ParticipantService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.rmi.server.UID;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

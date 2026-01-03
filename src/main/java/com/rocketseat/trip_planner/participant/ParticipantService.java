@@ -1,11 +1,11 @@
 package com.rocketseat.trip_planner.participant;
 
+import com.rocketseat.trip_planner.exception.ResourceNotFoundException;
 import com.rocketseat.trip_planner.trip.Trip;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

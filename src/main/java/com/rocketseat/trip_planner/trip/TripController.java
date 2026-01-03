@@ -3,16 +3,13 @@ package com.rocketseat.trip_planner.trip;
 import com.rocketseat.trip_planner.activity.ActivityData;
 import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
 import com.rocketseat.trip_planner.activity.ActivityResponse;
-import com.rocketseat.trip_planner.activity.ActivityService;
 import com.rocketseat.trip_planner.link.*;
 import com.rocketseat.trip_planner.participant.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -33,33 +30,25 @@ public class TripController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Trip> getTripDetails(@PathVariable UUID id) {
-        return tripService.getTripDetails(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(this.tripService.getTripDetails(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Trip> updateTrip(@PathVariable UUID id, @RequestBody TripRequestPayload payload) {
-        return tripService.updateTrip(id, payload)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-        // to-do: handle data errors
+        return ResponseEntity.ok(this.tripService.updateTrip(id, payload));
     }
 
 
     @PostMapping("/{id}/confirm")
     public ResponseEntity<Trip> confirmTrip(@PathVariable UUID id) {
-        return tripService.confirmTripAndSendEmailToParticipants(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(tripService.confirmTripAndSendEmailToParticipants(id));
+
     }
 
     // end Trip and start activity
     @PostMapping("/{id}/activities")
     public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
-        return tripService.registerActivityWithRequestBody(id, payload)
-                .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(tripService.registerActivityWithRequestBody(id, payload));
     }
 
     @GetMapping("/{id}/activities")
