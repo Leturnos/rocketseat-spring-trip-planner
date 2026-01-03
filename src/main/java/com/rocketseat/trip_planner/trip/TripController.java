@@ -20,16 +20,7 @@ import java.util.UUID;
 public class TripController {
 
     @Autowired
-    private ParticipantService participantService;
-
-    @Autowired
-    private ActivityService activityService;
-
-    @Autowired
     private TripService tripService;
-
-    @Autowired
-    private LinkService linkService;
 
     // start Trip
     @PostMapping
@@ -73,7 +64,7 @@ public class TripController {
 
     @GetMapping("/{id}/activities")
     public ResponseEntity<List<ActivityData>> getAllActivities(@PathVariable UUID id ) {
-        List<ActivityData>  activityData = this.activityService.getAllActivitiesFromId(id);
+        List<ActivityData>  activityData = this.tripService.findAllActivitiesByTripId(id);
 
         return ResponseEntity.ok(activityData);
     }
@@ -81,7 +72,7 @@ public class TripController {
     // end Activity and start Participant
     @GetMapping("/{id}/participants")
     public ResponseEntity<List<ParticipantData>> getAllParticipants(@PathVariable UUID id ) {
-        List<ParticipantData>  participantList = this.participantService.getAllParticipantsFromEvent(id);
+        List<ParticipantData> participantList = this.tripService.findAllParticipantsByTripId(id);
 
         return ResponseEntity.ok(participantList);
     }
@@ -101,7 +92,7 @@ public class TripController {
 
     @GetMapping("/{id}/links")
     public ResponseEntity<List<LinkData>> getAllLinks(@PathVariable UUID id ) {
-        List<LinkData> linkData = this.linkService.getAllLinksFromTrip(id);
+        List<LinkData> linkData = this.tripService.findAllLinksByTripId(id);
 
         return ResponseEntity.ok(linkData);
     }

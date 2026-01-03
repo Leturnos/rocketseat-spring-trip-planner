@@ -1,23 +1,25 @@
 package com.rocketseat.trip_planner.trip;
 
+import com.rocketseat.trip_planner.activity.ActivityData;
 import com.rocketseat.trip_planner.activity.ActivityRequestPayload;
 import com.rocketseat.trip_planner.activity.ActivityResponse;
 import com.rocketseat.trip_planner.activity.ActivityService;
 import com.rocketseat.trip_planner.exception.InvalidDateException;
-import com.rocketseat.trip_planner.link.Link;
-import com.rocketseat.trip_planner.link.LinkRequestPayload;
-import com.rocketseat.trip_planner.link.LinkResponse;
-import com.rocketseat.trip_planner.link.LinkService;
+import com.rocketseat.trip_planner.link.*;
 import com.rocketseat.trip_planner.participant.ParticipantCreateResponse;
+import com.rocketseat.trip_planner.participant.ParticipantData;
 import com.rocketseat.trip_planner.participant.ParticipantRequestPayload;
 import com.rocketseat.trip_planner.participant.ParticipantService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.rmi.server.UID;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -95,6 +97,14 @@ public class TripService {
                 .map(trip -> this.activityService.saveActivity(payload, trip));
     }
 
+    public List<ActivityData> findAllActivitiesByTripId(UUID id) {
+        return this.activityService.getAllActivitiesFromId(id);
+    }
+
+    public List<ParticipantData> findAllParticipantsByTripId(UUID id) {
+        return this.participantService.getAllParticipantsFromEvent(id);
+    }
+
     @Transactional
     public ParticipantCreateResponse inviteParticipantByEmail(UUID id, ParticipantRequestPayload payload) {
         Trip trip = this.tripRepository.findById(id).orElseThrow();
@@ -117,6 +127,10 @@ public class TripService {
 
         return linkResponse;
 
+    }
+
+    public List<LinkData> findAllLinksByTripId(UUID id) {
+        return this.linkService.getAllLinksFromTrip(id);
     }
 
     // methods
