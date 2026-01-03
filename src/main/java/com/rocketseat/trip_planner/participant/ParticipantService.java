@@ -28,13 +28,15 @@ public class ParticipantService {
         return new ParticipantCreateResponse(newParticipant.getId());
     }
 
-    public Optional<Participant> confirmParticipantFromId(UUID id, ParticipantRequestPayload payload) {
-        return participantRepository.findById(id).map(participant -> {
-            participant.setIsConfirmed(true);
-            participant.setName(payload.name());
-            return participantRepository.save(participant);
-        });
+    public Participant confirmParticipantFromId(UUID id, ParticipantRequestPayload payload) {
+        Participant participant = participantRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
+
+        participant.setIsConfirmed(true);
+        participant.setName(payload.name());
+        return participantRepository.save(participant);
     }
+
 
     public void triggerConfirmationEmailToParticipants(UUID tripId) {}
 

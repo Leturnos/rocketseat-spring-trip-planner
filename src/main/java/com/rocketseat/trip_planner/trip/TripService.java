@@ -45,50 +45,49 @@ public class TripService {
         return newTrip;
     }
 
-    public Optional<Trip> getTripDetails(UUID id) {
-        return this.tripRepository.findById(id);
+    public Trip getTripDetails(UUID id) {
+        return this.tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
     }
 
-    public Optional<Trip> updateTrip(UUID id, TripRequestPayload payload) {
-        Optional<Trip> trip = this.tripRepository.findById(id);
+    public Trip updateTrip(UUID id, TripRequestPayload payload) {
+        Trip trip = this.tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
 
-        if (trip.isPresent()) {
-            Trip rawTrip = trip.get();
+        LocalDateTime startsAt = LocalDateTime.parse(payload.starts_at(), DateTimeFormatter.ISO_DATE_TIME);
+        LocalDateTime endsAt = LocalDateTime.parse(payload.ends_at(), DateTimeFormatter.ISO_DATE_TIME);
 
-            LocalDateTime startsAt = LocalDateTime.parse(payload.starts_at(), DateTimeFormatter.ISO_DATE_TIME);
-            LocalDateTime endsAt = LocalDateTime.parse(payload.ends_at(), DateTimeFormatter.ISO_DATE_TIME);
-
-            if (endsAt.isBefore(startsAt)) {
-                throw new InvalidDateException("A data de término não pode ser anterior à data de início.");
-            }
-
-            rawTrip.setStartsAt(startsAt);
-            rawTrip.setEndsAt(endsAt);
-            rawTrip.setDestination(payload.destination());
-
-            this.tripRepository.save(rawTrip);
+        if (endsAt.isBefore(startsAt)) {
+            throw new InvalidDateException("A data de término não pode ser anterior à data de início.");
         }
+
+        trip.setStartsAt(startsAt);
+        trip.setEndsAt(endsAt);
+        trip.setDestination(payload.destination());
+
+        this.tripRepository.save(trip);
         return trip;
     }
 
     @Transactional
-    public Optional<Trip> confirmTripAndSendEmailToParticipants(UUID id) {
-        Optional<Trip> trip  = this.tripRepository.findById(id);
+    public Trip confirmTripAndSendEmailToParticipants(UUID id) {
+        Trip trip  = this.tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
 
-        if (trip.isPresent()) {
-            Trip rawTrip = trip.get();
-            rawTrip.setIsConfirmed(true);
+        trip.setIsConfirmed(true);
 
-            this.tripRepository.save(rawTrip);
-            this.participantService.triggerConfirmationEmailToParticipants(id);
+        this.tripRepository.save(trip);
+        this.participantService.triggerConfirmationEmailToParticipants(id);
 
-        }
         return trip;
     }
 
-    public Optional<ActivityResponse> registerActivityWithRequestBody(UUID id, ActivityRequestPayload payload) {
-        return this.tripRepository.findById(id)
-                .map(trip -> this.activityService.saveActivity(payload, trip));
+    public ActivityResponse registerActivityWithRequestBody(UUID id, ActivityRequestPayload payload) {
+        Trip trip = this.tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
+
+        ActivityResponse activity = this.activityService.saveActivity(payload, trip);
+       return activity;
     }
 
     public List<ActivityData> findAllActivitiesByTripId(UUID id) {
@@ -101,8 +100,8 @@ public class TripService {
 
     @Transactional
     public ParticipantCreateResponse inviteParticipantByEmail(UUID id, ParticipantRequestPayload payload) {
-        Trip trip = this.tripRepository.findById(id).orElseThrow();
-        // to-do: Treat error if there is no trip with the id
+        Trip trip = this.tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
 
         ParticipantCreateResponse participantCreateResponse = this.participantService.registerParticipantToEvent(payload.email(), trip);
 
@@ -114,8 +113,8 @@ public class TripService {
     }
 
     public LinkResponse registerLink(UUID id, LinkRequestPayload payload) {
-        Trip trip = this.tripRepository.findById(id).orElseThrow();
-        // to-do: Treat error if there is no trip with the id
+        Trip trip = this.tripRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Viagem com id " + id + ", não encontrado"));
 
         LinkResponse linkResponse = this.linkService.saveLink(payload, trip);
 
