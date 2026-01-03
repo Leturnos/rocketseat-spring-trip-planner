@@ -6,6 +6,7 @@ import com.rocketseat.trip_planner.activity.ActivityResponse;
 import com.rocketseat.trip_planner.link.*;
 import com.rocketseat.trip_planner.participant.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +23,8 @@ public class TripController {
     // start Trip
     @PostMapping
     public ResponseEntity<TripCreateResponse> createTrip(@RequestBody TripRequestPayload payload){
-
         Trip newTrip = tripService.registerTrip(payload);
-
-        return ResponseEntity.ok(new TripCreateResponse(newTrip.getId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TripCreateResponse(newTrip.getId()));
     }
 
     @GetMapping("/{id}")
@@ -48,7 +47,8 @@ public class TripController {
     // end Trip and start activity
     @PostMapping("/{id}/activities")
     public ResponseEntity<ActivityResponse> registerActivity(@PathVariable UUID id, @RequestBody ActivityRequestPayload payload){
-        return ResponseEntity.ok(tripService.registerActivityWithRequestBody(id, payload));
+        ActivityResponse response = tripService.registerActivityWithRequestBody(id, payload);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}/activities")
@@ -76,7 +76,7 @@ public class TripController {
     @PostMapping("/{id}/links")
     public ResponseEntity<LinkResponse> registerLink(@PathVariable UUID id, @RequestBody LinkRequestPayload payload){
         LinkResponse response = tripService.registerLink(id, payload);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}/links")
